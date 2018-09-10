@@ -7,19 +7,14 @@ cache:
     - ${TRAVIS_BUILD_DIR}/travis/extension-cache
 
 php:
-    - 5.5
-    - 5.6
     - 7.0
     - 7.1
+    - 7.2
 
 env:
-    - ILLUMINATE_VERSION=5.1.* PHPUNIT_VERSION=~4.0
-    - ILLUMINATE_VERSION=5.2.* PHPUNIT_VERSION=~4.0
-    - ILLUMINATE_VERSION=5.3.* PHPUNIT_VERSION=~5.0
-    - ILLUMINATE_VERSION=5.4.* PHPUNIT_VERSION=~5.7
-    - ILLUMINATE_VERSION=5.5.* PHPUNIT_VERSION=~6.0
     - ILLUMINATE_VERSION=5.5.* PHPUNIT_VERSION=~6.0 COVERAGE=true
     - ILLUMINATE_VERSION=5.6.* PHPUNIT_VERSION=~7.0
+    - ILLUMINATE_VERSION=5.7.* PHPUNIT_VERSION=~7.0
 
 matrix:
     # For each PHP version we exclude the coverage env, except for PHP 7.1

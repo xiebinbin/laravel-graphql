@@ -27,9 +27,6 @@ class GraphQL
     protected $app;
 
     protected $schemas = [];
-    protected $types = [];
-    protected $typesInstances = [];
-
     private $typeRegistry;
 
     public function __construct($app)
@@ -83,23 +80,9 @@ class GraphQL
         ]);
     }
 
-    public function type($name, $fresh = false)
+    public function type($name)
     {
-        if (!isset($this->types[$name])) {
-            throw new TypeNotFound('Type '.$name.' not found.');
-        }
-
-        if (!$fresh && isset($this->typesInstances[$name])) {
-            return $this->typesInstances[$name];
-        }
-
-        $class = $this->types[$name];
-        $type = $this->objectType($class, [
-            'name' => $name
-        ]);
-        $this->typesInstances[$name] = $type;
-
-        return $type;
+        return $this->typeRegistry->get($name);
     }
 
     public function objectType($type, $opts = [])
@@ -174,20 +157,12 @@ class GraphQL
     {
         $name = $this->getTypeName($class, $name);
         $this->typeRegistry->set($name, $class);
-        $this->types[$name] = $class;
     }
 
     public function addSchema($name, $schema)
     {
         $this->schemas[$name] = $schema;
         event(new SchemaAdded($schema, $name));
-    }
-
-    public function clearType($name)
-    {
-        if (isset($this->types[$name])) {
-            unset($this->types[$name]);
-        }
     }
 
     public function clearSchema($name)
@@ -197,19 +172,9 @@ class GraphQL
         }
     }
 
-    public function clearTypes()
-    {
-        $this->types = [];
-    }
-
     public function clearSchemas()
     {
         $this->schemas = [];
-    }
-
-    public function getTypes()
-    {
-        return $this->types;
     }
 
     public function getSchemas()
@@ -217,11 +182,12 @@ class GraphQL
         return $this->schemas;
     }
 
-    protected function clearTypeInstances()
-    {
-        $this->typesInstances = [];
-    }
-
+    /**
+     * @param $type
+     * @param array $opts
+     * @return \GraphQL\Type\Definition\Type
+     * @throws TypeNotFound
+     */
     protected function buildObjectTypeFromClass($type, $opts = [])
     {
         if (!is_object($type)) {
@@ -289,20 +255,5 @@ class GraphQL
         }
 
         return $error;
-    }
-
-    public function pagination(ObjectType $type)
-    {
-        // Only add the PaginationCursor when there is a pagination defined.
-        if (!isset($this->types['PaginationCursor'])) {
-            $this->types['PaginationCursor'] = new PaginationCursorType();
-        }
-
-        // If the instace type of the given pagination does not exists, create a new one!
-        if (!isset($this->typesInstances[$type->name . 'Pagination'])) {
-            $this->typesInstances[$type->name . 'Pagination'] = new PaginationType($type->name);
-        }
-
-        return $this->typesInstances[$type->name . 'Pagination'];
     }
 }

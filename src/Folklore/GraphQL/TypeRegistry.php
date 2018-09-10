@@ -3,7 +3,9 @@
 namespace Folklore\GraphQL;
 
 use Folklore\GraphQL\Exception\TypeNotFound;
+use Folklore\GraphQL\Support\Facades\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
+use Illuminate\Support\Facades\Log;
 
 class TypeRegistry
 {
@@ -33,7 +35,7 @@ class TypeRegistry
 
         if (!isset($this->typeObjects[$type]))
         {
-            $this->typeObjects[$type] = \Folklore\GraphQL\Support\Facades\GraphQL::objectType($this->types[$type]);
+            $this->typeObjects[$type] = GraphQL::objectType($this->types[$type]);
         }
 
         return $this->typeObjects[$type];
