@@ -207,4 +207,10 @@ return [
         'query_max_depth' => null,
         'disable_introspection' => false
     ],
+
+    /*
+     * If you use custom scalars, put the path to the directory you use here, along with your full namespace to your scalars.
+     */
+    'scalar_directory' => app_path("GraphQL/Types/Scalars"),
+    'scalar_namespace' => 'App\GraphQL\Types\Scalars',
 ];
