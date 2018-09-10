@@ -2,6 +2,20 @@
 
 This version has been optimized for performance, and I keep up with the latest version of the [webonyx](https://github.com/webonyx/graphql-php) library. This version uses a `TypeRegistry` class inside the schema registration method to lazy load types as they are needed. This has increased performance in application with 500+ types registered by over 50%. I also stopped the unused `TypeAdded` event from firing, which also increased performance significantly.
 
+The usage of the `TypeRegistry` complicates the library to a degree - you must now publish the path to your custom scalars directory and namespace in the `graphql.php` configuration file. When creating custom scalars, your `type` function must be configured as follows:
+
+```
+static public function type() {
+        if(is_null(self::$_instance))
+        {
+            self::$_instance = new self();
+        }
+        return GraphQL::type(self::$_instance->name);
+    }
+``` 
+
+It's important that anywhere you reference a GraphQL, you always call it with `GraphQL::type` rather than instantiating the class, as this will hook into the `TypeRegistry` class. If you don't do this, you'll get schema errors.
+
 # Laravel GraphQL
 
 Use Facebook GraphQL with Laravel 5 or Lumen. It is based on the PHP implementation [here](https://github.com/webonyx/graphql-php). You can find more information about GraphQL in the [GraphQL Introduction](http://facebook.github.io/react/blog/2015/05/01/graphql-introduction.html) on the [React](http://facebook.github.io/react) blog or you can read the [GraphQL specifications](https://facebook.github.io/graphql/). This is a work in progress.
