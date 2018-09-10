@@ -18,6 +18,9 @@ use Folklore\GraphQL\Events\TypeAdded;
 
 use Folklore\GraphQL\Support\PaginationType;
 use Folklore\GraphQL\Support\PaginationCursorType;
+use GraphQL\Utils\AST;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class GraphQL
 {
@@ -28,11 +31,13 @@ class GraphQL
     protected $typesInstances = [];
 
     private $fireTypeAddedEvent = true;
+    private $typeRegistry;
 
     public function __construct($app)
     {
         $this->app = $app;
         $this->fireTypeAddedEvent = config('graphql.fire_type_added_events', true);
+        $this->typeRegistry = new TypeRegistry();
     }
 
     public function schema($schema = null)
@@ -40,8 +45,6 @@ class GraphQL
         if ($schema instanceof Schema) {
             return $schema;
         }
-
-        $this->clearTypeInstances();
 
         $schemaName = is_string($schema) ? $schema:config('graphql.schema', 'default');
 
@@ -58,25 +61,6 @@ class GraphQL
         $schemaQuery = array_get($schema, 'query', []);
         $schemaMutation = array_get($schema, 'mutation', []);
         $schemaSubscription = array_get($schema, 'subscription', []);
-        $schemaTypes = array_get($schema, 'types', []);
-
-        //Get the types either from the schema, or the global types.
-        $types = [];
-        if (sizeof($schemaTypes)) {
-            foreach ($schemaTypes as $name => $type) {
-                $objectType = $this->objectType($type, is_numeric($name) ? []:[
-                    'name' => $name
-                ]);
-                $this->typesInstances[$name] = $objectType;
-                $types[] = $objectType;
-                
-                $this->addType($type, $name);
-            }
-        } else {
-            foreach ($this->types as $name => $type) {
-                $types[] = $this->type($name);
-            }
-        }
 
         $query = $this->objectType($schemaQuery, [
             'name' => 'Query'
@@ -94,7 +78,10 @@ class GraphQL
             'query' => $query,
             'mutation' => !empty($schemaMutation) ? $mutation : null,
             'subscription' => !empty($schemaSubscription) ? $subscription : null,
-            'types' => $types
+            'typeLoader' => function($name)
+            {
+                return $this->typeRegistry->get($name);
+            }
         ]);
     }
 
@@ -188,6 +175,7 @@ class GraphQL
     public function addType($class, $name = null)
     {
         $name = $this->getTypeName($class, $name);
+        $this->typeRegistry->set($name, $class);
         $this->types[$name] = $class;
 
         if ($this->fireTypeAddedEvent === true) {
