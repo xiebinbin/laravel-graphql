@@ -27,7 +27,7 @@ class GraphQL
     protected $types = [];
     protected $typesInstances = [];
 
-    private $fireEvents = true;
+    private $fireTypeAddedEvent = true;
 
     public function __construct($app)
     {
