@@ -44,7 +44,7 @@ Version 1.0 is released. If you are upgrading from older version, you can check 
 ```json
 {
   "require": {
-    "sonarsoftware/graphql": "~1.0.0"
+    "sonarsoftware/graphql": "~2.0.0"
   }
 }
 ```
@@ -74,71 +74,6 @@ $ php artisan vendor:publish --provider="Folklore\GraphQL\ServiceProvider"
 ```
 config/graphql.php
 ```
-
-### Laravel <= 5.4.x
-
-**1-** Add the service provider to your `config/app.php` file
-```php
-Folklore\GraphQL\ServiceProvider::class,
-```
-
-**2-** Add the facade to your `config/app.php` file
-```php
-'GraphQL' => Folklore\GraphQL\Support\Facades\GraphQL::class,
-```
-
-**3-** Publish the configuration file
-
-```bash
-$ php artisan vendor:publish --provider="Folklore\GraphQL\ServiceProvider"
-```
-
-**4-** Review the configuration file
-
-```
-config/graphql.php
-```
-
-### Lumen
-
-**1-** Load the service provider in `bootstrap/app.php`
-```php
-$app->register(Folklore\GraphQL\LumenServiceProvider::class);
-```
-
-**2-** For using the facade you have to uncomment the line `$app->withFacades();` in `bootstrap/app.php`
-
-After uncommenting this line you have the `GraphQL` facade enabled
-
-```php
-$app->withFacades();
-```
-
-**3-** Publish the configuration file
-
-```bash
-$ php artisan graphql:publish
-```
-
-**4-** Load configuration file in `bootstrap/app.php`
-
-*Important*: this command needs to be executed before the registration of the service provider
-
-```php
-$app->configure('graphql');
-...
-$app->register(Folklore\GraphQL\LumenServiceProvider::class)
-```
-
-**5-** Review the configuration file
-
-```
-config/graphql.php
-```
-
-## Documentation
-
-- [Upgrade to 1.0](docs/upgrade.md)
 
 ## Usage
 
